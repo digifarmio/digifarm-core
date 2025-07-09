@@ -12,9 +12,10 @@
   },
   "engines": {
     "node": ">=18.0.0",
+    "npm": ">=10.0.0",
     "yarn": "please-use-npm"
   },
-  "license": "ISC",
+  "license": "MIT",
   "author": "Digifarm",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
@@ -24,7 +25,8 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "publish": "yarn npm publish --access public"
+    "prepublishOnly": "npm run build",
+    "publish": "npm publish --access public"
   },
   "dependencies": {
     "@slack/web-api": "^6.9.0",

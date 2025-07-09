@@ -45,9 +45,7 @@ export const schemaUnMarshal = (item: any) => {
 
   const setUnmarshelledParams = Object.entries(params).reduce(
     (acc, [key, value]) => {
-      // @ts-ignore
       if (value?.wrapperName === "Set") {
-        // @ts-ignore
         acc[key] = value.values;
       } else {
         acc[key] = value;
@@ -66,7 +64,7 @@ export const schemaUnMarshal = (item: any) => {
     }
   }
 
-  if (SKPattern) {
+  if (SKPattern?.id) {
     setUnmarshelledParams[SKPattern.id] = SK.split(SKPattern.keyPattern)[1];
   }
 

@@ -8,7 +8,6 @@ import { SlackManager } from "@/external-services/slack-manager";
 import { QueueManager } from "@/external-services/sqs-manager";
 import { UsageLogsReadManager } from "@/external-services/usage-logs-read-manager";
 import { UsageLogsWriterManager } from "@/external-services/usage-logs-writer-manager";
-import { schemaUnMarshal } from "@/helpers/schemaUnmarshal";
 
 import type {
   IUsageLogsManager,
@@ -35,7 +34,6 @@ export {
   LogManager,
   S3Manager,
   SESManager,
-  schemaUnMarshal,
 };
 
 export type {
