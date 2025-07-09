@@ -1,5 +1,9 @@
 # Digifarm Core
 
+[![npm version](https://badge.fury.io/js/%40digifarm%2Fcore.svg)](https://badge.fury.io/js/%40digifarm%2Fcore)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![Node.js >= 18.0.0](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg)](https://nodejs.org/)
+
 A comprehensive TypeScript library providing core functionality for the Digifarm API services, including AWS service integrations, data access patterns, and utility functions.
 
 ## 📋 Table of Contents
@@ -7,7 +11,7 @@ A comprehensive TypeScript library providing core functionality for the Digifarm
 - [Overview](#overview)
 - [Features](#features)
 - [Installation](#installation)
-- [Architecture](#architecture)
+- [Project Structure](#project-structure)
 - [External Services](#external-services)
 - [Data Access](#data-access)
 - [Helpers](#helpers)
@@ -55,13 +59,32 @@ or
 yarn add @digifarm/core
 ```
 
-## 🏗️ Architecture
+## 🏗️ Project Structure
+
+```
+src/
+├── data-access/                                # Data access layer
+│   └── user/                                   # User organization repository
+├── external-services/                          # AWS and external service managers
+│   ├── cognito-manager/                        # AWS Cognito integration
+│   ├── lambda-manager/                         # AWS Lambda integration
+│   ├── log-manager/                            # CloudWatch logging
+│   ├── s3-manager/                             # S3 operations
+│   ├── ses-manager/                            # SES email service
+│   ├── slack-manager/                          # Slack notifications
+│   ├── sqs-manager/                            # SQS queue management
+│   ├── usage-logs-read-manager/                # Usage log reading system
+│   └── usage-logs-writer-manager/              # Usage log writing system
+├── helpers/                                    # Utility functions
+└── types/                                      # TypeScript type definitions
+```
 
 The library is organized into three main categories:
 
 1. **External Services** (`src/external-services/`): AWS and third-party service integrations
 2. **Data Access** (`src/data-access/`): Database access patterns and repositories
 3. **Helpers** (`src/helpers/`): Utility functions and data transformation helpers
+
 
 ## 🔧 External Services
 
@@ -97,8 +120,7 @@ import { LambdaManager } from '@digifarm/core';
 import AWS from 'aws-sdk';
 
 const lambdaClient = new AWS.Lambda();
-const logger = new LambdaLog();
-const lambdaManager = new LambdaManager({ logger, lambdaClient });
+const lambdaManager = new LambdaManager({ lambdaClient });
 
 // Invoke Lambda function
 const response = await lambdaManager.getResponse({
@@ -121,8 +143,7 @@ import { S3Manager } from '@digifarm/core';
 import AWS from 'aws-sdk';
 
 const s3Client = new AWS.S3();
-const logger = new LambdaLog();
-const s3Manager = new S3Manager({ logger, s3Client });
+const s3Manager = new S3Manager({ s3Client });
 
 // Generate signed URL
 const signedUrl = await s3Manager.getSignedUrl({
@@ -178,8 +199,7 @@ import { QueueManager } from '@digifarm/core';
 import AWS from 'aws-sdk';
 
 const sqsClient = new AWS.SQS();
-const logger = new LambdaLog();
-const queueManager = new QueueManager({ logger, sqsClient });
+const queueManager = new QueueManager({ sqsClient });
 
 // Send single message
 await queueManager.sendMessage({
@@ -211,8 +231,7 @@ import { SlackManager } from '@digifarm/core';
 import { WebClient } from '@slack/web-api';
 
 const slackClient = new WebClient('your-slack-token');
-const logger = new LambdaLog();
-const slackManager = new SlackManager({ logger, slackClient });
+const slackManager = new SlackManager({ slackClient });
 
 // Send notification
 await slackManager.sendNotification({
@@ -259,8 +278,7 @@ import { UsageLogsReadManager } from '@digifarm/core';
 import S3 from 'aws-sdk/clients/s3';
 
 const s3Client = new S3();
-const logger = new LogManager({ lambdaLog });
-const usageLogsReader = new UsageLogsReadManager({ s3Client, logger });
+const usageLogsReader = new UsageLogsReadManager({ s3Client });
 
 // Read usage logs from S3
 const usageLogs = await usageLogsReader.getUsageLogs('bucket/path/to/logs.txt');
@@ -321,9 +339,7 @@ import { UserOrganizationRepository } from '@digifarm/core';
 import { DynamoDB } from 'aws-sdk';
 
 const dynamoDocClient = new DynamoDB.DocumentClient();
-const logger = new LogManager({ lambdaLog });
 const userOrgRepo = new UserOrganizationRepository({
-  logger,
   userOrganizationTable: 'user-organization-table',
   dynamoDocClient
 });
@@ -408,15 +424,15 @@ const cognitoManager = new CognitoManager({
   userPoolId: 'your-user-pool-id'
 });
 
-const lambdaManager = new LambdaManager({ logger, lambdaClient });
-const s3Manager = new S3Manager({ logger, s3Client });
+const lambdaManager = new LambdaManager({ lambdaClient });
+const s3Manager = new S3Manager({ s3Client });
 const sesManager = new SESManager({ sesClient });
-const queueManager = new QueueManager({ logger, sqsClient });
+const queueManager = new QueueManager({ sqsClient });
 
 const slackClient = new WebClient('your-slack-token');
-const slackManager = new SlackManager({ logger, slackClient });
+const slackManager = new SlackManager({ slackClient });
 
-const usageLogsReader = new UsageLogsReadManager({ s3Client, logger });
+const usageLogsReader = new UsageLogsReadManager({ s3Client });
 const usageLogsWriter = new UsageLogsWriterManager({
   logger,
   firehoseClient,
@@ -424,7 +440,6 @@ const usageLogsWriter = new UsageLogsWriterManager({
 });
 
 const userOrgRepo = new UserOrganizationRepository({
-  logger,
   userOrganizationTable: 'user-organization-table',
   dynamoDocClient
 });
@@ -469,11 +484,11 @@ async function processUserRequest(userId: string) {
 
 ### Prerequisites
 
-- Node.js 18+
-- TypeScript 5.8+
-- Yarn or npm
+- Node.js >= 18.0.0
+- Yarn >= 1.22.22 (recommended package manager)
 
 ### Setup
+
 
 ```bash
 # Clone the repository
@@ -489,7 +504,6 @@ yarn build
 # Run tests
 yarn test
 ```
-
 ### Build Configuration
 
 The project uses `tsup` for building with the following configuration:
@@ -516,10 +530,10 @@ The project includes comprehensive test coverage for all managers and utilities.
 yarn test
 
 # Run tests with coverage
-yarn test --coverage
+yarn test:coverage
 
 # Run tests in watch mode
-yarn test --watch
+yarn test:watch
 ```
 
 ### Test Structure
