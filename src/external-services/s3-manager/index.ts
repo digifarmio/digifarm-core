@@ -1,12 +1,9 @@
-import { LambdaLog } from "lambda-log";
-import AWS from "aws-sdk";
+import { S3 } from "aws-sdk";
 
 export class S3Manager {
-  private logger: LambdaLog;
-  private s3Client: AWS.S3;
+  private s3Client: S3;
 
-  constructor({ logger, s3Client }: { logger: LambdaLog; s3Client: AWS.S3 }) {
-    this.logger = logger;
+  constructor({ s3Client }: { s3Client: S3 }) {
     this.s3Client = s3Client;
   }
 
@@ -25,13 +22,7 @@ export class S3Manager {
       Expires: expires,
     };
 
-    try {
-      const url = await this.s3Client.getSignedUrlPromise("getObject", params);
-      return url;
-    } catch (err) {
-      this.logger.error(err as Error);
-      throw err;
-    }
+    return await this.s3Client.getSignedUrlPromise("getObject", params);
   }
 
   async querySentinelBucket(bucket: string, prefix: string, delimiter = "/") {

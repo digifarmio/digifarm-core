@@ -1,29 +1,18 @@
-import type { ILogger } from "../external-services/log-manager";
 import { DynamoDB } from "aws-sdk";
-import { schemaUnMarshal } from "../helpers/schemaUnmarshal";
-
-export type UserOrganization = {
-  Token: string;
-  Type: string;
-  Name: string;
-  organizationId: string;
-};
+import { schemaUnMarshal } from "@/helpers/schemaUnmarshal";
+import { UserOrganization } from "@/types";
 
 export class UserOrganizationRepository {
-  private logger: ILogger;
   private userOrganizationTable: string;
   private dynamoDocClient: DynamoDB.DocumentClient;
 
   constructor({
-    logger,
     userOrganizationTable,
     dynamoDocClient,
   }: {
-    logger: ILogger;
     userOrganizationTable: string;
     dynamoDocClient: DynamoDB.DocumentClient;
   }) {
-    this.logger = logger;
     this.userOrganizationTable = userOrganizationTable;
     this.dynamoDocClient = dynamoDocClient;
   }
@@ -41,7 +30,6 @@ export class UserOrganizationRepository {
       .promise();
 
     const userOrgs = result.Items?.map(schemaUnMarshal);
-    this.logger.info("User organizations", { userOrgs });
     return userOrgs?.[0];
   }
 
@@ -58,7 +46,6 @@ export class UserOrganizationRepository {
       .promise();
 
     const userOrgs = result.Items?.map(schemaUnMarshal);
-    this.logger.info("User organizations", { userOrgs });
     return userOrgs?.[0];
   }
 
@@ -74,14 +61,10 @@ export class UserOrganizationRepository {
       })
       .promise();
 
-    this.logger.info("User organization result", { result });
-
     const users = result.Items?.map(schemaUnMarshal) as {
       userId: string;
       organizationId: string;
     }[];
-
-    this.logger.info("Users", { users });
 
     return users;
   }

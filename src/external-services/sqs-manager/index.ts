@@ -1,46 +1,11 @@
-import { LambdaLog } from "lambda-log";
-import AWS from "aws-sdk";
+import { SQS } from "aws-sdk";
 import lodash from "lodash";
 import { Promise as BluebirdPromise } from "bluebird";
-import { Polygon } from "geojson";
-
-export type ViableImageryVerifierPayloadType = {
-  targetPayload: Record<string, unknown>;
-  params: {
-    bbox: Polygon;
-    checkStartTime: string;
-    checkEndTime: string;
-    problematicAreaPercentage: number;
-    startTime: string;
-    endTime?: string;
-  };
-  target: string;
-  messageId: string;
-};
-
-export type PartialDRErrorPayloadType = {
-  targetPayload: Record<string, unknown>;
-  params: {
-    imageryId: string;
-    failedAt: Date;
-    errorMessage: string;
-  };
-  target: string;
-  messageId: string;
-};
 
 export class QueueManager {
-  private logger: LambdaLog;
-  private sqsClient: AWS.SQS;
+  private sqsClient: SQS;
 
-  constructor({
-    logger,
-    sqsClient,
-  }: {
-    logger: LambdaLog;
-    sqsClient: AWS.SQS;
-  }) {
-    this.logger = logger;
+  constructor({ sqsClient }: { sqsClient: SQS }) {
     this.sqsClient = sqsClient;
   }
 
@@ -56,13 +21,7 @@ export class QueueManager {
       MessageBody: JSON.stringify(message),
     };
 
-    try {
-      const data = await this.sqsClient.sendMessage(params).promise();
-      return data;
-    } catch (err) {
-      this.logger.error(err as Error);
-      throw err;
-    }
+    return await this.sqsClient.sendMessage(params).promise();
   }
 
   // This function takes messages, an array of arbitrary length, and sends them to the queueUrl using sendMessageBatch function. sendMessageBatch takes maximum 10 messages at a time. So we need to chunk the messages array into chunks of 10 messages each and send them to the queueUrl.
@@ -91,13 +50,7 @@ export class QueueManager {
           })),
         };
 
-        try {
-          const data = await this.sqsClient.sendMessageBatch(params).promise();
-          return data;
-        } catch (err) {
-          this.logger.error(err as Error);
-          throw err;
-        }
+        return await this.sqsClient.sendMessageBatch(params).promise();
       }
     );
 

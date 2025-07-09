@@ -2,9 +2,8 @@ import { CognitoIdentityServiceProvider } from "aws-sdk";
 import CognitoManager from "..";
 
 jest.mock("aws-sdk", () => {
-  const mAdminGetUser = jest.fn();
   const mCognitoIdentityServiceProvider = jest.fn(() => ({
-    adminGetUser: mAdminGetUser,
+    adminGetUser: jest.fn(),
   }));
 
   return {
@@ -12,7 +11,7 @@ jest.mock("aws-sdk", () => {
   };
 });
 
-describe("CognitoManager", () => {
+describe("CognitoManager Testing", () => {
   const mockUserPoolId = "mock-user-pool-id";
   const mockUsername = "mock-username";
 
@@ -28,11 +27,11 @@ describe("CognitoManager", () => {
   let mockAdminGetUser: jest.Mock;
 
   beforeEach(() => {
-    // Clear and reset mocks
     jest.clearAllMocks();
 
-    const cognitoClient = new CognitoIdentityServiceProvider() as any;
-    mockAdminGetUser = cognitoClient.adminGetUser;
+    const cognitoClient = new CognitoIdentityServiceProvider();
+
+    mockAdminGetUser = cognitoClient.adminGetUser as jest.Mock;
 
     mockAdminGetUser.mockReturnValue({
       promise: jest.fn().mockResolvedValue(mockResponse),
@@ -44,13 +43,17 @@ describe("CognitoManager", () => {
     });
   });
 
-  it("should return parsed user attributes", async () => {
-    const result = await cognitoManager.getUserByUsername(mockUsername);
+  it("should call adminGetUser with the correct parameters", async () => {
+    await cognitoManager.getUserByUsername(mockUsername);
 
     expect(mockAdminGetUser).toHaveBeenCalledWith({
       UserPoolId: mockUserPoolId,
       Username: mockUsername,
     });
+  });
+
+  it("should return parsed user attributes", async () => {
+    const result = await cognitoManager.getUserByUsername(mockUsername);
 
     expect(result).toEqual({
       email: "test@example.com",

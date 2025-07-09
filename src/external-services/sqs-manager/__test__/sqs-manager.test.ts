@@ -1,8 +1,7 @@
-import AWS from "aws-sdk";
-import { QueueManager } from "..";
-import { LambdaLog } from "lambda-log";
+import { SQS } from "aws-sdk";
 import lodash from "lodash";
 import Bluebird from "bluebird";
+import { QueueManager } from "..";
 
 // Mocks
 jest.mock("lodash", () => ({
@@ -10,29 +9,33 @@ jest.mock("lodash", () => ({
 }));
 
 jest.mock("bluebird", () => ({
-  map: jest.fn(),
+  Promise: {
+    map: jest.fn(),
+  },
 }));
 
-describe("QueueManager", () => {
-  const mockLogger = {
-    error: jest.fn(),
-  } as unknown as LambdaLog;
+jest.mock("aws-sdk", () => ({
+  SQS: jest.fn(() => ({
+    sendMessage: jest.fn(),
+    sendMessageBatch: jest.fn(),
+  })),
+}));
 
-  const mockSendMessage = jest.fn();
-  const mockSendMessageBatch = jest.fn();
-
-  const mockSQS = {
-    sendMessage: mockSendMessage,
-    sendMessageBatch: mockSendMessageBatch,
-  } as unknown as AWS.SQS;
-
+describe("QueueManager Testing", () => {
   let queueManager: QueueManager;
+  let mockSendMessage: jest.Mock;
+  let mockSendMessageBatch: jest.Mock;
 
   beforeEach(() => {
     jest.clearAllMocks();
+
+    const sqsClient = new SQS();
+
+    mockSendMessage = sqsClient.sendMessage as jest.Mock;
+    mockSendMessageBatch = sqsClient.sendMessageBatch as jest.Mock;
+
     queueManager = new QueueManager({
-      logger: mockLogger,
-      sqsClient: mockSQS,
+      sqsClient,
     });
   });
 
@@ -47,11 +50,23 @@ describe("QueueManager", () => {
 
     const result = await queueManager.sendMessage({ queueUrl, message });
 
+    expect(result).toEqual(mockResponse);
+  });
+
+  it("should call sendMessage with correct params", async () => {
+    const queueUrl = "https://sqs.fake-queue";
+    const message = { id: "1", test: true };
+
+    mockSendMessage.mockReturnValue({
+      promise: jest.fn(),
+    });
+
+    await queueManager.sendMessage({ queueUrl, message });
+
     expect(mockSendMessage).toHaveBeenCalledWith({
       QueueUrl: queueUrl,
       MessageBody: JSON.stringify(message),
     });
-    expect(result).toEqual(mockResponse);
   });
 
   it("should handle sendMessage error and log it", async () => {
@@ -66,8 +81,6 @@ describe("QueueManager", () => {
     await expect(
       queueManager.sendMessage({ queueUrl, message })
     ).rejects.toThrow("SQS send failed");
-
-    expect(mockLogger.error).toHaveBeenCalledWith(error);
   });
 
   it("should send bulk messages in chunks and return success/failure results", async () => {
@@ -92,9 +105,11 @@ describe("QueueManager", () => {
       },
     ];
 
-    (Bluebird.map as jest.Mock).mockImplementation(async (chunks, fn) => {
-      return Promise.all(chunks.map(fn));
-    });
+    (Bluebird.Promise.map as jest.Mock).mockImplementation(
+      async (chunks, fn) => {
+        return Promise.all(chunks.map(fn));
+      }
+    );
 
     mockSendMessageBatch
       .mockReturnValueOnce({
@@ -111,10 +126,10 @@ describe("QueueManager", () => {
         messageIndexName: "id",
       });
 
-    expect(failedMessages).toEqual(batchResponses[0].Failed);
+    expect(failedMessages).toEqual(batchResponses?.[0]?.Failed);
     expect(successfulMessages).toEqual([
-      ...batchResponses[0].Successful,
-      ...batchResponses[1].Successful,
+      ...(batchResponses?.[0]?.Successful || []),
+      ...(batchResponses?.[1]?.Successful || []),
     ]);
   });
 
@@ -127,7 +142,7 @@ describe("QueueManager", () => {
 
     const error = new Error("Batch send failed");
 
-    (Bluebird.map as jest.Mock).mockImplementation(async (chunks, fn) => {
+    (Bluebird.Promise.map as jest.Mock).mockImplementation(async (chunks) => {
       return Promise.all(chunks.map(() => Promise.reject(error)));
     });
 
@@ -138,7 +153,5 @@ describe("QueueManager", () => {
         messageIndexName: "id",
       })
     ).rejects.toThrow("Batch send failed");
-
-    expect(mockLogger.error).toHaveBeenCalledWith(error);
   });
 });

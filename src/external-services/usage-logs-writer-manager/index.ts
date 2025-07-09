@@ -6,8 +6,8 @@ import {
   UsageLogMetricFamily,
   UsageLogMetricTypes,
   NewPolygonPayload,
-  PartiaDRPayload,
-} from "../usage-logs-read-manager";
+  PartialDRPayload,
+} from "@/types";
 import type { APIGatewayProxyEvent } from "aws-lambda";
 
 export class UsageLogsWriterManager {
@@ -165,7 +165,7 @@ export class UsageLogsWriterManager {
   }
 
   async writeUsageLogForPDRImagery(
-    features: PartiaDRPayload[] = [],
+    features: PartialDRPayload[] = [],
     organizationId: string
   ) {
     this.logger.debug("features for logging", { features });

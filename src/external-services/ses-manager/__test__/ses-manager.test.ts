@@ -11,15 +11,15 @@ jest.mock("aws-sdk", () => {
   return { SES: SESMock };
 });
 
-describe("SESManager", () => {
+describe("SESManager Testing", () => {
   let sesManager: SESManager;
   let mockSendTemplatedEmail: jest.Mock;
 
   beforeEach(() => {
     jest.clearAllMocks();
 
-    const sesClient = new SES() as any;
-    mockSendTemplatedEmail = sesClient.sendTemplatedEmail;
+    const sesClient = new SES();
+    mockSendTemplatedEmail = sesClient.sendTemplatedEmail as jest.Mock;
 
     sesManager = new SESManager({ sesClient });
   });
@@ -35,6 +35,17 @@ describe("SESManager", () => {
     mockSendTemplatedEmail.mockReturnValue({
       promise: jest.fn().mockResolvedValue({ MessageId: "abc-123" }),
     });
+
+    await sesManager.sendEmailUsingTemplate(input);
+  });
+
+  it("should call sendTemplatedEmail with correct params", async () => {
+    const input = {
+      sourceEmail: "sender@example.com",
+      destinationEmail: "receiver@example.com",
+      templateName: "MyTemplate",
+      templateData: { name: "John", code: 1234 },
+    };
 
     await sesManager.sendEmailUsingTemplate(input);
 

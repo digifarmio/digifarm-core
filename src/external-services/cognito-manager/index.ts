@@ -15,7 +15,7 @@ export class CognitoManager {
     this.userPoolId = userPoolId;
   }
 
-  async processCognitoResponse(
+  private async processCognitoResponse(
     cognitoResponse: CognitoIdentityServiceProvider.Types.AdminGetUserResponse
   ) {
     const attributesObject = Object.fromEntries(

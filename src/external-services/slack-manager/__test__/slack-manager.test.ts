@@ -1,12 +1,8 @@
-import { SlackManager, SlackNotificationPayload } from "..";
 import { WebClient } from "@slack/web-api";
-import { LambdaLog } from "lambda-log";
+import { SlackManager } from "..";
+import { SlackNotificationPayload } from "@/types";
 
-describe("SlackManager", () => {
-  const mockLogger = {
-    error: jest.fn(),
-  } as unknown as LambdaLog;
-
+describe("SlackManager Testing", () => {
   const postMessageMock = jest.fn();
   const mockSlackClient = {
     chat: {
@@ -18,8 +14,8 @@ describe("SlackManager", () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+
     slackManager = new SlackManager({
-      logger: mockLogger,
       slackClient: mockSlackClient,
     });
   });
@@ -36,15 +32,24 @@ describe("SlackManager", () => {
 
     const result = await slackManager.sendNotification(payload);
 
+    expect(result).toBe(mockResponse);
+  });
+
+  it("should call postMessage with correct params", async () => {
+    const payload: SlackNotificationPayload = {
+      text: "Hello, Slack!",
+      channel: "#general",
+    };
+
+    await slackManager.sendNotification(payload);
+
     expect(postMessageMock).toHaveBeenCalledWith({
       text: payload.text,
       channel: payload.channel,
     });
-
-    expect(result).toBe(mockResponse);
   });
 
-  it("should log and throw error on failure", async () => {
+  it("should throw error on failure", async () => {
     const error = new Error("Slack API error");
 
     postMessageMock.mockRejectedValue(error);
@@ -57,7 +62,5 @@ describe("SlackManager", () => {
     await expect(slackManager.sendNotification(payload)).rejects.toThrow(
       "Slack API error"
     );
-
-    expect(mockLogger.error).toHaveBeenCalledWith(error);
   });
 });

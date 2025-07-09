@@ -1,7 +1,7 @@
 import { LogManager } from "..";
 import { LambdaLog } from "lambda-log";
 
-describe("LogManager", () => {
+describe("LogManager Testing", () => {
   const mockLambdaLog = {
     debug: jest.fn(),
     info: jest.fn(),

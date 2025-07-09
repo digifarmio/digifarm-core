@@ -18,7 +18,7 @@ export class SESManager {
     templateName: string;
     templateData: Record<string, string | number>;
   }) {
-    await this.sesClient
+    return await this.sesClient
       .sendTemplatedEmail({
         Source: sourceEmail,
         Destination: {

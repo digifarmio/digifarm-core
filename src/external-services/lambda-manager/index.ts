@@ -1,18 +1,9 @@
-import { LambdaLog } from "lambda-log";
-import AWS from "aws-sdk";
+import { Lambda } from "aws-sdk";
 
 export class LambdaManager {
-  private logger: LambdaLog;
-  private lambdaClient: AWS.Lambda;
+  private lambdaClient: Lambda;
 
-  constructor({
-    logger,
-    lambdaClient,
-  }: {
-    logger: LambdaLog;
-    lambdaClient: AWS.Lambda;
-  }) {
-    this.logger = logger;
+  constructor({ lambdaClient }: { lambdaClient: Lambda }) {
     this.lambdaClient = lambdaClient;
   }
 
@@ -29,12 +20,6 @@ export class LambdaManager {
       Payload: JSON.stringify(payload),
     };
 
-    try {
-      const data = await this.lambdaClient.invoke(params).promise();
-      return data;
-    } catch (err) {
-      this.logger.error(err as Error);
-      throw err;
-    }
+    return await this.lambdaClient.invoke(params).promise();
   }
 }
