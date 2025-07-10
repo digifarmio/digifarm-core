@@ -1,6 +1,6 @@
 # Digifarm Core
 
-[![npm version](https://badge.fury.io/js/%40digifarm%2Fcore.svg)](https://badge.fury.io/js/%40digifarm%2Fcore)
+[![npm version](https://badge.fury.io/js/@digifarmio%2Fcore.svg)](https://badge.fury.io/js/@digifarmio%2Fcore)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Node.js >= 18.0.0](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg)](https://nodejs.org/)
 
@@ -61,7 +61,7 @@ npm install @digifarm/core
 or
 
 ```bash
-yarn add @digifarm/core
+npm add @digifarm/core
 ```
 
 ## 🏗️ Project Structure
@@ -506,7 +506,7 @@ async function processUserRequest(userId: string) {
 ### Prerequisites
 
 - Node.js >= 18.0.0
-- Yarn >= 1.22.22 (recommended package manager)
+- NPM
 
 ### Setup
 
@@ -516,13 +516,13 @@ git clone https://github.com/digifarmio/digifarm-core.git
 cd digifarm-core
 
 # Install dependencies
-yarn install
+npm install
 
 # Build the project
-yarn build
+npm build
 
 # Run tests
-yarn test
+npm test
 ```
 
 ### Build Configuration
@@ -548,13 +548,13 @@ The project includes comprehensive test coverage for all managers and utilities.
 
 ```bash
 # Run all tests
-yarn test
+npm test
 
 # Run tests with coverage
-yarn test:coverage
+npm test:coverage
 
 # Run tests in watch mode
-yarn test:watch
+npm test:watch
 ```
 
 ### Test Structure
