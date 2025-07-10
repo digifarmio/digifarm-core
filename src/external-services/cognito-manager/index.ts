@@ -16,11 +16,11 @@ export class CognitoManager {
   }
 
   private async processCognitoResponse(
-    cognitoResponse: CognitoIdentityServiceProvider.Types.AdminGetUserResponse
+    cognitoResponse: CognitoIdentityServiceProvider.Types.AdminGetUserResponse,
   ) {
     const attributesObject = Object.fromEntries(
       cognitoResponse?.UserAttributes?.map((attr) => [attr.Name, attr.Value]) ||
-        []
+        [],
     );
 
     return attributesObject;

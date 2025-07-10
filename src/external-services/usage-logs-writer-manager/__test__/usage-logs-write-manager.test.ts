@@ -13,7 +13,7 @@ import type { APIGatewayProxyEvent } from "aws-lambda";
 
 // Helper function to create mock APIGatewayProxyEvent
 const createMockAPIGatewayEvent = (
-  overrides: Partial<APIGatewayProxyEvent> = {}
+  overrides: Partial<APIGatewayProxyEvent> = {},
 ): APIGatewayProxyEvent => ({
   requestContext: {
     requestId: "test-request-id",
@@ -132,7 +132,7 @@ describe("UsageLogsWriterManager Testing", () => {
         "Successfully logged usage:",
         {
           response: { RecordId: "test-record-id" },
-        }
+        },
       );
     });
 
@@ -141,7 +141,7 @@ describe("UsageLogsWriterManager Testing", () => {
       mockPutRecord.mockRejectedValue(error);
 
       await expect(
-        usageLogsWriterManager.writeUsageLog(mockUsageLog)
+        usageLogsWriterManager.writeUsageLog(mockUsageLog),
       ).rejects.toThrow("Firehose error");
 
       expect(mockLogger.info).toHaveBeenCalledWith("input to usagelogs", {
@@ -174,7 +174,7 @@ describe("UsageLogsWriterManager Testing", () => {
 
       await usageLogsWriterManager.writeUsageLogForGetDelineatedFields(
         mockEvent,
-        mockFeatures
+        mockFeatures,
       );
 
       expect(mockLogger.debug).toHaveBeenCalledWith("features for logging", {
@@ -193,7 +193,7 @@ describe("UsageLogsWriterManager Testing", () => {
         expect.objectContaining({
           ttc: expect.any(Number),
           requestId: "test-request-id",
-        })
+        }),
       );
     });
 
@@ -209,7 +209,7 @@ describe("UsageLogsWriterManager Testing", () => {
 
       await usageLogsWriterManager.writeUsageLogForGetDelineatedFields(
         eventWithoutBilling,
-        mockFeatures
+        mockFeatures,
       );
 
       expect(mockFirehoseClient.putRecord).toHaveBeenCalledWith({
@@ -225,7 +225,7 @@ describe("UsageLogsWriterManager Testing", () => {
 
       await usageLogsWriterManager.writeUsageLogForGetDelineatedFields(
         mockEvent,
-        []
+        [],
       );
 
       expect(mockLogger.debug).toHaveBeenCalledWith("features for logging", {
@@ -243,7 +243,7 @@ describe("UsageLogsWriterManager Testing", () => {
 
       await usageLogsWriterManager.writeUsageLogForGetDelineatedFields(
         eventWithoutParams,
-        mockFeatures
+        mockFeatures,
       );
 
       expect(mockFirehoseClient.putRecord).toHaveBeenCalledWith({
@@ -278,7 +278,7 @@ describe("UsageLogsWriterManager Testing", () => {
 
       await usageLogsWriterManager.writeUsageLogForGetDelineatedFieldsByLocation(
         mockEvent,
-        mockFeatures
+        mockFeatures,
       );
 
       expect(mockLogger.debug).toHaveBeenCalledWith("features for logging", {
@@ -297,7 +297,7 @@ describe("UsageLogsWriterManager Testing", () => {
         expect.objectContaining({
           ttc: expect.any(Number),
           requestId: "test-request-id",
-        })
+        }),
       );
     });
 
@@ -306,7 +306,7 @@ describe("UsageLogsWriterManager Testing", () => {
 
       await usageLogsWriterManager.writeUsageLogForGetDelineatedFieldsByLocation(
         mockEvent,
-        []
+        [],
       );
 
       expect(mockLogger.debug).toHaveBeenCalledWith("features for logging", {
@@ -338,7 +338,7 @@ describe("UsageLogsWriterManager Testing", () => {
 
       await usageLogsWriterManager.writeUsageLogForGetDelineatedFieldsById(
         mockEvent,
-        mockFeatures
+        mockFeatures,
       );
 
       expect(mockLogger.debug).toHaveBeenCalledWith("features for logging:", {
@@ -357,7 +357,7 @@ describe("UsageLogsWriterManager Testing", () => {
         expect.objectContaining({
           ttc: expect.any(Number),
           requestId: "test-request-id",
-        })
+        }),
       );
     });
 
@@ -366,7 +366,7 @@ describe("UsageLogsWriterManager Testing", () => {
 
       await usageLogsWriterManager.writeUsageLogForGetDelineatedFieldsById(
         mockEvent,
-        []
+        [],
       );
 
       expect(mockLogger.debug).toHaveBeenCalledWith("features for logging:", {
@@ -394,7 +394,7 @@ describe("UsageLogsWriterManager Testing", () => {
 
       await usageLogsWriterManager.writeUsageLogForPDRImagery(
         mockFeatures,
-        organizationId
+        organizationId,
       );
 
       expect(mockLogger.debug).toHaveBeenCalledWith("features for logging", {
@@ -413,7 +413,7 @@ describe("UsageLogsWriterManager Testing", () => {
         expect.objectContaining({
           ttc: expect.any(Number),
           requestId: mockFeatures,
-        })
+        }),
       );
     });
 
@@ -422,7 +422,7 @@ describe("UsageLogsWriterManager Testing", () => {
 
       await usageLogsWriterManager.writeUsageLogForPDRImagery(
         [],
-        organizationId
+        organizationId,
       );
 
       expect(mockLogger.debug).toHaveBeenCalledWith("features for logging", {
@@ -435,7 +435,7 @@ describe("UsageLogsWriterManager Testing", () => {
 
       await usageLogsWriterManager.writeUsageLogForPDRImagery(
         mockFeatures,
-        organizationId
+        organizationId,
       );
 
       expect(mockFirehoseClient.putRecord).toHaveBeenCalledWith({
@@ -451,7 +451,7 @@ describe("UsageLogsWriterManager Testing", () => {
 
       await usageLogsWriterManager.writeUsageLogForPDRImagery(
         [],
-        organizationId
+        organizationId,
       );
 
       expect(mockFirehoseClient.putRecord).toHaveBeenCalledWith({
@@ -477,8 +477,8 @@ describe("UsageLogsWriterManager Testing", () => {
       await expect(
         usageLogsWriterManager.writeUsageLogForGetDelineatedFields(
           mockEvent,
-          []
-        )
+          [],
+        ),
       ).rejects.toThrow("Firehose error");
     });
   });

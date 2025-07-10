@@ -72,7 +72,7 @@ describe("SESManager Testing", () => {
         destinationEmail: "b@example.com",
         templateName: "T1",
         templateData: { foo: "bar" },
-      })
+      }),
     ).rejects.toThrow("SES failure");
   });
 });

@@ -51,7 +51,7 @@ export class QueueManager {
         };
 
         return await this.sqsClient.sendMessageBatch(params).promise();
-      }
+      },
     );
 
     const failedMessages = failedEntries

@@ -60,7 +60,7 @@ describe("SlackManager Testing", () => {
     };
 
     await expect(slackManager.sendNotification(payload)).rejects.toThrow(
-      "Slack API error"
+      "Slack API error",
     );
   });
 });

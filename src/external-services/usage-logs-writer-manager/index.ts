@@ -52,7 +52,7 @@ export class UsageLogsWriterManager {
 
   async writeUsageLogForGetDelineatedFields(
     event: APIGatewayProxyEvent,
-    features: NewPolygonPayload[] = []
+    features: NewPolygonPayload[] = [],
   ) {
     this.logger.debug("features for logging", { features });
 
@@ -94,7 +94,7 @@ export class UsageLogsWriterManager {
 
   async writeUsageLogForGetDelineatedFieldsByLocation(
     event: APIGatewayProxyEvent,
-    features: NewPolygonPayload[] = []
+    features: NewPolygonPayload[] = [],
   ) {
     this.logger.debug("features for logging", { features });
 
@@ -130,7 +130,7 @@ export class UsageLogsWriterManager {
 
   async writeUsageLogForGetDelineatedFieldsById(
     event: APIGatewayProxyEvent,
-    features: NewPolygonPayload[] = []
+    features: NewPolygonPayload[] = [],
   ) {
     this.logger.debug("features for logging:", { features });
 
@@ -166,7 +166,7 @@ export class UsageLogsWriterManager {
 
   async writeUsageLogForPDRImagery(
     features: PartialDRPayload[] = [],
-    organizationId: string
+    organizationId: string,
   ) {
     this.logger.debug("features for logging", { features });
 

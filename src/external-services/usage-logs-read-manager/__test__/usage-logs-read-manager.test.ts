@@ -192,7 +192,7 @@ describe("UsageLogsReadManager", () => {
       });
 
       const result = await usageLogsReadManager.getUsageLogs(
-        "my-bucket/path/to/logs.txt"
+        "my-bucket/path/to/logs.txt",
       );
 
       expect(mockS3.getObject).toHaveBeenCalledWith({
@@ -236,7 +236,7 @@ describe("UsageLogsReadManager", () => {
       });
 
       const result = await usageLogsReadManager.getUsageLogs(
-        "my-bucket/path/to/logs.txt"
+        "my-bucket/path/to/logs.txt",
       );
 
       expect(result).toHaveLength(2);
@@ -250,7 +250,7 @@ describe("UsageLogsReadManager", () => {
       });
 
       const result = await usageLogsReadManager.getUsageLogs(
-        "my-bucket/path/to/logs.txt"
+        "my-bucket/path/to/logs.txt",
       );
 
       expect(result).toEqual([]);
@@ -262,7 +262,7 @@ describe("UsageLogsReadManager", () => {
       });
 
       const result = await usageLogsReadManager.getUsageLogs(
-        "my-bucket/path/to/logs.txt"
+        "my-bucket/path/to/logs.txt",
       );
 
       expect(result).toEqual([]);
@@ -270,7 +270,7 @@ describe("UsageLogsReadManager", () => {
 
     it("should throw error for invalid path without bucket", async () => {
       await expect(usageLogsReadManager.getUsageLogs("")).rejects.toThrow(
-        "Invalid path"
+        "Invalid path",
       );
     });
 
@@ -304,7 +304,7 @@ describe("UsageLogsReadManager", () => {
 
     it("should throw error for invalid path with only slash", async () => {
       await expect(usageLogsReadManager.getUsageLogs("/")).rejects.toThrow(
-        "Invalid path"
+        "Invalid path",
       );
     });
 
@@ -327,7 +327,7 @@ describe("UsageLogsReadManager", () => {
       });
 
       await usageLogsReadManager.getUsageLogs(
-        "my-bucket/folder/subfolder/logs.txt"
+        "my-bucket/folder/subfolder/logs.txt",
       );
 
       expect(mockS3.getObject).toHaveBeenCalledWith({
@@ -341,7 +341,7 @@ describe("UsageLogsReadManager", () => {
       mockGetObject.mockRejectedValue(s3Error);
 
       await expect(
-        usageLogsReadManager.getUsageLogs("my-bucket/path/to/logs.txt")
+        usageLogsReadManager.getUsageLogs("my-bucket/path/to/logs.txt"),
       ).rejects.toThrow("S3 access denied");
     });
 
@@ -383,7 +383,7 @@ describe("UsageLogsReadManager", () => {
       });
 
       const result = await usageLogsReadManager.getUsageLogs(
-        "my-bucket/path/to/logs.txt"
+        "my-bucket/path/to/logs.txt",
       );
 
       expect(result).toHaveLength(1);

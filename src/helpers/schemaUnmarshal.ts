@@ -36,11 +36,11 @@ export const schemaUnMarshal = (item: any) => {
   const { PK, SK, ...params } = item;
 
   const [PKPattern] = schemaPrefixes.filter(
-    (pattern) => PK && PK.match(pattern.keyPattern)
+    (pattern) => PK && PK.match(pattern.keyPattern),
   );
 
   const [SKPattern] = schemaPrefixes.filter(
-    (pattern) => SK && SK.match(pattern.keyPattern)
+    (pattern) => SK && SK.match(pattern.keyPattern),
   );
 
   const setUnmarshelledParams = Object.entries(params).reduce(
@@ -52,7 +52,7 @@ export const schemaUnMarshal = (item: any) => {
       }
       return acc;
     },
-    {}
+    {} as Record<string, any>,
   );
 
   if (PKPattern) {

@@ -77,9 +77,8 @@ describe("UserOrganizationRepository Testing", () => {
         }),
       });
 
-      const result = await userOrgRepository.getUserOrganizationsById(
-        mockUserId
-      );
+      const result =
+        await userOrgRepository.getUserOrganizationsById(mockUserId);
 
       expect(result).toEqual(mockUserOrganization);
     });
@@ -91,9 +90,8 @@ describe("UserOrganizationRepository Testing", () => {
         }),
       });
 
-      const result = await userOrgRepository.getUserOrganizationsById(
-        mockUserId
-      );
+      const result =
+        await userOrgRepository.getUserOrganizationsById(mockUserId);
 
       expect(result).toBeUndefined();
     });
@@ -105,9 +103,8 @@ describe("UserOrganizationRepository Testing", () => {
         }),
       });
 
-      const result = await userOrgRepository.getUserOrganizationsById(
-        mockUserId
-      );
+      const result =
+        await userOrgRepository.getUserOrganizationsById(mockUserId);
 
       expect(result).toBeUndefined();
     });
@@ -119,7 +116,7 @@ describe("UserOrganizationRepository Testing", () => {
       });
 
       await expect(
-        userOrgRepository.getUserOrganizationsById(mockUserId)
+        userOrgRepository.getUserOrganizationsById(mockUserId),
       ).rejects.toThrow("DynamoDB query failed");
     });
   });
@@ -159,9 +156,8 @@ describe("UserOrganizationRepository Testing", () => {
         }),
       });
 
-      const result = await userOrgRepository.getOrganizationsByToken(
-        mockTokenId
-      );
+      const result =
+        await userOrgRepository.getOrganizationsByToken(mockTokenId);
 
       expect(result).toEqual({
         Token: "test-token",
@@ -178,9 +174,8 @@ describe("UserOrganizationRepository Testing", () => {
         }),
       });
 
-      const result = await userOrgRepository.getOrganizationsByToken(
-        mockTokenId
-      );
+      const result =
+        await userOrgRepository.getOrganizationsByToken(mockTokenId);
 
       expect(result).toBeUndefined();
     });
@@ -192,7 +187,7 @@ describe("UserOrganizationRepository Testing", () => {
       });
 
       await expect(
-        userOrgRepository.getOrganizationsByToken(mockTokenId)
+        userOrgRepository.getOrganizationsByToken(mockTokenId),
       ).rejects.toThrow("DynamoDB query failed");
     });
   });
@@ -240,9 +235,8 @@ describe("UserOrganizationRepository Testing", () => {
         }),
       });
 
-      const result = await userOrgRepository.getUserByOrganizationId(
-        mockOrganizationId
-      );
+      const result =
+        await userOrgRepository.getUserByOrganizationId(mockOrganizationId);
 
       expect(result).toEqual([
         {
@@ -269,9 +263,8 @@ describe("UserOrganizationRepository Testing", () => {
         }),
       });
 
-      const result = await userOrgRepository.getUserByOrganizationId(
-        mockOrganizationId
-      );
+      const result =
+        await userOrgRepository.getUserByOrganizationId(mockOrganizationId);
 
       expect(result).toEqual([]);
     });
@@ -283,9 +276,8 @@ describe("UserOrganizationRepository Testing", () => {
         }),
       });
 
-      const result = await userOrgRepository.getUserByOrganizationId(
-        mockOrganizationId
-      );
+      const result =
+        await userOrgRepository.getUserByOrganizationId(mockOrganizationId);
 
       expect(result).toBeUndefined();
     });
@@ -297,7 +289,7 @@ describe("UserOrganizationRepository Testing", () => {
       });
 
       await expect(
-        userOrgRepository.getUserByOrganizationId(mockOrganizationId)
+        userOrgRepository.getUserByOrganizationId(mockOrganizationId),
       ).rejects.toThrow("DynamoDB query failed");
     });
   });

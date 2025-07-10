@@ -79,7 +79,7 @@ describe("QueueManager Testing", () => {
     });
 
     await expect(
-      queueManager.sendMessage({ queueUrl, message })
+      queueManager.sendMessage({ queueUrl, message }),
     ).rejects.toThrow("SQS send failed");
   });
 
@@ -108,7 +108,7 @@ describe("QueueManager Testing", () => {
     (Bluebird.Promise.map as jest.Mock).mockImplementation(
       async (chunks, fn) => {
         return Promise.all(chunks.map(fn));
-      }
+      },
     );
 
     mockSendMessageBatch
@@ -151,7 +151,7 @@ describe("QueueManager Testing", () => {
         queueUrl,
         messages,
         messageIndexName: "id",
-      })
+      }),
     ).rejects.toThrow("Batch send failed");
   });
 });
