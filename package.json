@@ -29,8 +29,7 @@
     "format:check": "prettier --check .",
     "lint": "eslint src/**/*",
     "lint:fix": "eslint src/**/* --fix",
-    "prepublishOnly": "npm run build",
-    "publish": "npm publish --access public"
+    "prepublishOnly": "npm run build"
   },
   "dependencies": {
     "@slack/web-api": "^6.9.0",
