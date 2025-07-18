@@ -52,7 +52,7 @@ jobs:
           echo "current_version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
 
           # Check if version is valid semver
-          if ! semver "$VERSION" > /dev/null 2>&1; then
+          if ! semver "$CURRENT_VERSION" > /dev/null 2>&1; then
             echo "❌ Invalid version format: $CURRENT_VERSION"
             exit 1
           fi
