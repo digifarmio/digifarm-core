@@ -31,7 +31,7 @@ export class UsageLogsWriterManager {
 
   async writeUsageLog(usageLog: UsageLog): Promise<void> {
     const log = JSON.stringify(usageLog);
-    this.logger.info("input to usagelogs", {
+    this.logger.info("input to usage logs", {
       usageLog,
     });
     // Date and timestamp to be added here.
@@ -57,7 +57,7 @@ export class UsageLogsWriterManager {
     this.logger.debug("features for logging", { features });
 
     const getSourceType = (e: APIGatewayProxyEvent) => {
-      if (e?.queryStringParameters?.billing === "by_haa") {
+      if (e?.queryStringParameters?.["billing"] === "by_haa") {
         return UsageLogBillingType.AREA;
       } else {
         return UsageLogBillingType.COUNT;
@@ -79,8 +79,8 @@ export class UsageLogsWriterManager {
         type: UsageLogMetricTypes.DF_HIGH_RES,
         billingType: type,
       },
-      organizationId: event?.queryStringParameters?.token || "",
-      apiKeyId: event?.queryStringParameters?.token || "",
+      organizationId: event?.queryStringParameters?.["token"] || "",
+      apiKeyId: event?.queryStringParameters?.["token"] || "",
       timeStamp: ts,
       date: date,
       payload: features,
@@ -113,8 +113,8 @@ export class UsageLogsWriterManager {
         type: UsageLogMetricTypes.DF_HIGH_RES,
         billingType: sourceType,
       },
-      organizationId: event?.queryStringParameters?.token || "",
-      apiKeyId: event?.queryStringParameters?.token || "",
+      organizationId: event?.queryStringParameters?.["token"] || "",
+      apiKeyId: event?.queryStringParameters?.["token"] || "",
       timeStamp: ts,
       date,
       payload: features,
@@ -149,8 +149,8 @@ export class UsageLogsWriterManager {
         type: UsageLogMetricTypes.DF_HIGH_RES,
         billingType: sourceType,
       },
-      organizationId: event?.queryStringParameters?.token || "",
-      apiKeyId: event?.queryStringParameters?.token || "",
+      organizationId: event?.queryStringParameters?.["token"] || "",
+      apiKeyId: event?.queryStringParameters?.["token"] || "",
       timeStamp: ts,
       date,
       payload: features,

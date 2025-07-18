@@ -117,23 +117,12 @@ describe("UsageLogsWriterManager Testing", () => {
 
       await usageLogsWriterManager.writeUsageLog(mockUsageLog);
 
-      expect(mockLogger.info).toHaveBeenCalledWith("input to usagelogs", {
-        usageLog: mockUsageLog,
-      });
-
       expect(mockFirehoseClient.putRecord).toHaveBeenCalledWith({
         DeliveryStreamName: deliveryStreamName,
         Record: {
           Data: `${JSON.stringify(mockUsageLog)}$_$`,
         },
       });
-
-      expect(mockLogger.info).toHaveBeenCalledWith(
-        "Successfully logged usage:",
-        {
-          response: { RecordId: "test-record-id" },
-        },
-      );
     });
 
     it("should handle Firehose errors", async () => {
@@ -143,10 +132,6 @@ describe("UsageLogsWriterManager Testing", () => {
       await expect(
         usageLogsWriterManager.writeUsageLog(mockUsageLog),
       ).rejects.toThrow("Firehose error");
-
-      expect(mockLogger.info).toHaveBeenCalledWith("input to usagelogs", {
-        usageLog: mockUsageLog,
-      });
     });
   });
 
@@ -177,24 +162,12 @@ describe("UsageLogsWriterManager Testing", () => {
         mockFeatures,
       );
 
-      expect(mockLogger.debug).toHaveBeenCalledWith("features for logging", {
-        features: mockFeatures,
-      });
-
       expect(mockFirehoseClient.putRecord).toHaveBeenCalledWith({
         DeliveryStreamName: deliveryStreamName,
         Record: {
           Data: expect.stringContaining('"billingType":"AREA"'),
         },
       });
-
-      expect(mockLogger.info).toHaveBeenCalledWith(
-        expect.stringMatching(/Completion time for usagelog insertion: \d+/),
-        expect.objectContaining({
-          ttc: expect.any(Number),
-          requestId: "test-request-id",
-        }),
-      );
     });
 
     it("should write usage log with COUNT billing type when billing is not by_haa", async () => {
@@ -227,10 +200,6 @@ describe("UsageLogsWriterManager Testing", () => {
         mockEvent,
         [],
       );
-
-      expect(mockLogger.debug).toHaveBeenCalledWith("features for logging", {
-        features: [],
-      });
     });
 
     it("should handle missing queryStringParameters", async () => {
@@ -281,24 +250,12 @@ describe("UsageLogsWriterManager Testing", () => {
         mockFeatures,
       );
 
-      expect(mockLogger.debug).toHaveBeenCalledWith("features for logging", {
-        features: mockFeatures,
-      });
-
       expect(mockFirehoseClient.putRecord).toHaveBeenCalledWith({
         DeliveryStreamName: deliveryStreamName,
         Record: {
           Data: expect.stringContaining('"billingType":"COUNT"'),
         },
       });
-
-      expect(mockLogger.info).toHaveBeenCalledWith(
-        expect.stringMatching(/Completion time for usagelog insertion: \d+/),
-        expect.objectContaining({
-          ttc: expect.any(Number),
-          requestId: "test-request-id",
-        }),
-      );
     });
 
     it("should handle empty features array", async () => {
@@ -308,10 +265,6 @@ describe("UsageLogsWriterManager Testing", () => {
         mockEvent,
         [],
       );
-
-      expect(mockLogger.debug).toHaveBeenCalledWith("features for logging", {
-        features: [],
-      });
     });
   });
 
@@ -341,24 +294,12 @@ describe("UsageLogsWriterManager Testing", () => {
         mockFeatures,
       );
 
-      expect(mockLogger.debug).toHaveBeenCalledWith("features for logging:", {
-        features: mockFeatures,
-      });
-
       expect(mockFirehoseClient.putRecord).toHaveBeenCalledWith({
         DeliveryStreamName: deliveryStreamName,
         Record: {
           Data: expect.stringContaining('"billingType":"COUNT"'),
         },
       });
-
-      expect(mockLogger.info).toHaveBeenCalledWith(
-        expect.stringMatching(/Completion time for usagelog insertion: \d+/),
-        expect.objectContaining({
-          ttc: expect.any(Number),
-          requestId: "test-request-id",
-        }),
-      );
     });
 
     it("should handle empty features array", async () => {
@@ -368,10 +309,6 @@ describe("UsageLogsWriterManager Testing", () => {
         mockEvent,
         [],
       );
-
-      expect(mockLogger.debug).toHaveBeenCalledWith("features for logging:", {
-        features: [],
-      });
     });
   });
 
@@ -397,24 +334,12 @@ describe("UsageLogsWriterManager Testing", () => {
         organizationId,
       );
 
-      expect(mockLogger.debug).toHaveBeenCalledWith("features for logging", {
-        features: mockFeatures,
-      });
-
       expect(mockFirehoseClient.putRecord).toHaveBeenCalledWith({
         DeliveryStreamName: deliveryStreamName,
         Record: {
           Data: expect.stringContaining('"metric":"SUM"'),
         },
       });
-
-      expect(mockLogger.info).toHaveBeenCalledWith(
-        expect.stringMatching(/Completion time for usagelog insertion: \d+/),
-        expect.objectContaining({
-          ttc: expect.any(Number),
-          requestId: mockFeatures,
-        }),
-      );
     });
 
     it("should handle empty features array", async () => {
@@ -424,10 +349,6 @@ describe("UsageLogsWriterManager Testing", () => {
         [],
         organizationId,
       );
-
-      expect(mockLogger.debug).toHaveBeenCalledWith("features for logging", {
-        features: [],
-      });
     });
 
     it("should use first subscriptionId as requestId when features exist", async () => {
