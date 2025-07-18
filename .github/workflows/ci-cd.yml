@@ -6,7 +6,7 @@ on:
     types: [opened, synchronize, reopened]
   
 env:
-  NODE_VERSION: 16
+  NODE_VERSION: 18
 
 jobs:
   # Pre-merge checks for pull requests

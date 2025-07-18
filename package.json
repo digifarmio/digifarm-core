@@ -11,8 +11,8 @@
     "url": "git+https://github.com/digifarmio/digifarm-core.git"
   },
   "engines": {
-    "node": ">=16.0.0",
-    "npm": ">=8.0.0",
+    "node": ">=18.20.8",
+    "npm": ">=10.8.2",
     "yarn": "please-use-npm"
   },
   "license": "MIT",
