@@ -3,8 +3,7 @@
     "target": "es2022",
     "lib": ["ES2022"],
     "moduleDetection": "force",
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
+    "module": "preserve",
     "baseUrl": "./",
     "paths": {
       "@/*": ["./src/*"]
@@ -13,9 +12,7 @@
     "allowJs": true,
     "declaration": true,
     "declarationMap": true,
-    "sourceMap": true,
     "noEmit": true,
-    "outDir": "./dist",
     "isolatedModules": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
