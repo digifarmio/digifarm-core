@@ -1,6 +1,6 @@
 {
   "name": "@digifarmio/core",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "A comprehensive TypeScript library providing core functionality for the Digifarm API services, including AWS service integrations, data access patterns, and utility functions.",
   "homepage": "https://github.com/digifarmio/digifarm-core#readme",
   "bugs": {
