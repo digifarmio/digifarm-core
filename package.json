@@ -11,8 +11,8 @@
     "url": "git+https://github.com/digifarmio/digifarm-core.git"
   },
   "engines": {
-    "node": ">=18.0.0",
-    "npm": ">=10.0.0",
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0",
     "yarn": "please-use-npm"
   },
   "license": "MIT",
@@ -29,7 +29,10 @@
     "format:check": "prettier --check .",
     "lint": "eslint src/**/*",
     "lint:fix": "eslint src/**/* --fix",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "version:patch": "ts-node scripts/bump-version.js patch",
+    "version:minor": "ts-node scripts/bump-version.js minor",
+    "version:major": "ts-node scripts/bump-version.js major"
   },
   "dependencies": {
     "@slack/web-api": "^6.9.0",
