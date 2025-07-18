@@ -30,6 +30,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Install semver CLI
+        run: npm install -g semver
+
       - name: Check formatting
         run: npm run format:check
 
@@ -42,14 +45,14 @@ jobs:
       - name: Build package
         run: npm run build
 
-      - name: Check package version
+      - name: Check package version is valid semver
         id: check-version
         run: |
           CURRENT_VERSION=$(node -p "require('./package.json').version")
           echo "current_version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
 
           # Check if version is valid semver
-          if ! npm version $CURRENT_VERSION --dry-run > /dev/null 2>&1; then
+          if ! semver "$VERSION" > /dev/null 2>&1; then
             echo "❌ Invalid version format: $CURRENT_VERSION"
             exit 1
           fi
