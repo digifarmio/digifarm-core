@@ -1,0 +1,75 @@
+name: CI/CD Pipeline
+
+on:
+  pull_request:
+    branches: [development]
+    types: [opened, synchronize, reopened]
+  
+env:
+  NODE_VERSION: 16
+
+jobs:
+  # Pre-merge checks for pull requests
+  pre-merge-checks:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    name: Pre-Merge Checks
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check formatting
+        run: npm run format:check
+
+      - name: Run linting
+        run: npm run lint
+
+      - name: Run tests
+        run: npm run test:coverage
+
+      - name: Build package
+        run: npm run build
+
+      - name: Check package version
+        id: check-version
+        run: |
+          CURRENT_VERSION=$(node -p "require('./package.json').version")
+          echo "current_version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+          
+          # Check if version is valid semver
+          if ! npm version $CURRENT_VERSION --dry-run > /dev/null 2>&1; then
+            echo "❌ Invalid version format: $CURRENT_VERSION"
+            exit 1
+          fi
+          
+          echo "✅ Version $CURRENT_VERSION is valid"
+
+      - name: Check for version conflicts
+        run: |
+          CURRENT_VERSION=$(node -p "require('./package.json').version")
+          
+          # Get the latest version from main branch
+          git fetch origin main
+          git checkout origin/main -- package.json
+          MAIN_VERSION=$(node -p "require('./package.json').version")
+          
+          # Compare versions
+          if [ "$CURRENT_VERSION" = "$MAIN_VERSION" ]; then
+            echo "❌ Version $CURRENT_VERSION already exists in main branch"
+            echo "Please bump the version before creating a pull request"
+            exit 1
+          fi
+          
+          echo "✅ Version $CURRENT_VERSION is new and valid"
