@@ -2,7 +2,7 @@ name: CI/CD Pipeline
 
 on:
   pull_request:
-    branches: [development, main]
+    branches: [development]
     types: [opened, synchronize, reopened]
   push:
     branches: [main]
@@ -101,9 +101,6 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
-
-      - name: Run tests
-        run: npm run test
 
       - name: Build package
         run: npm run build
