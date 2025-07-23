@@ -129,11 +129,15 @@ jobs:
           VERSION=$(node -p "require('./package.json').version")
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "Package version: $VERSION"
+
+      - name: Set npm registry
+        run: |
+          echo "registry=https://registry.npmjs.org/" >> ~/.npmrc
+          echo "//registry.npmjs.org/:_authToken=${{ env.NPM_TOKEN }}" >> ~/.npmrc
+
       - name: Publish to npm
         id: publish-npm
-        run: npm publish --access public --registry https://registry.npmjs.org/
-        env:
-          NODE_AUTH_TOKEN: ${{ env.NPM_TOKEN }}
+        run: npm publish --access public
 
       - name: Create GitHub Release
         id: create-release
