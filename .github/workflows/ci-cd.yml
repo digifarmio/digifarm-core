@@ -116,11 +116,13 @@ jobs:
           echo "Package version: $VERSION"
 
       - name: Publish to npm
+        id: publish-npm
         run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{ env.NPM_TOKEN }}
 
       - name: Create GitHub Release
+        id: create-release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ env.GITHUB_TOKEN }}
@@ -141,3 +143,39 @@ jobs:
             ```
           draft: false
           prerelease: false
+
+      # Rollback steps that run on failure
+      - name: Rollback on failure
+        if: failure()
+        run: |
+          echo "❌ Release failed! Starting rollback process..."
+
+          # Get the current version
+          VERSION=$(node -p "require('./package.json').version")
+          echo "Rolling back version: $VERSION"
+
+          # Unpublish from npm if it was published
+          if [ "${{ steps.publish-npm.outcome }}" == "success" ]; then
+            echo "Unpublishing from npm..."
+            npm unpublish @digifarmio/core@$VERSION --force || echo "Failed to unpublish from npm"
+          fi
+
+          # Delete the GitHub release if it was created
+          if [ "${{ steps.create-release.outcome }}" == "success" ]; then
+            echo "Deleting GitHub release..."
+            gh release delete v$VERSION --yes || echo "Failed to delete GitHub release"
+          fi
+
+          # Revert the git push
+          echo "Reverting git push..."
+          git revert HEAD --no-edit || echo "Failed to revert git push"
+          git push origin main --force || echo "Failed to force push revert"
+
+          echo "✅ Rollback completed"
+
+      - name: Notify rollback
+        if: failure()
+        run: |
+          echo "🚨 RELEASE FAILED AND ROLLED BACK"
+          echo "Version: ${{ steps.package-version.outputs.version }}"
+          echo "Please check the logs and fix the issues before trying again."
