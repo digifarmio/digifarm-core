@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 const schemaPrefixes = [
   {
     keyPattern: /^KEYID#([^#;]+)#APITYPE#([^#;]+)$/g,
@@ -35,7 +36,7 @@ export const schemaUnMarshal = (item: any) => {
 
   const { PK, SK, ...params } = item;
 
-  const [PKPattern] = schemaPrefixes.filter(
+  const [PKPattern]: any = schemaPrefixes.filter(
     (pattern) => PK && PK.match(pattern.keyPattern),
   );
 
@@ -44,7 +45,7 @@ export const schemaUnMarshal = (item: any) => {
   );
 
   const setUnmarshelledParams = Object.entries(params).reduce(
-    (acc, [key, value]) => {
+    (acc, [key, value]: [string, any]) => {
       if (value?.wrapperName === "Set") {
         acc[key] = value.values;
       } else {

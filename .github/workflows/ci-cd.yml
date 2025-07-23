@@ -4,9 +4,13 @@ on:
   pull_request:
     branches: [development]
     types: [opened, synchronize, reopened]
-  
+  push:
+    branches: [main]
+
 env:
-  NODE_VERSION: 16
+  NODE_VERSION: 18
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
 jobs:
   # Pre-merge checks for pull requests
@@ -14,7 +18,7 @@ jobs:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     name: Pre-Merge Checks
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -25,10 +29,13 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
+          cache: "npm"
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Install semver CLI
+        run: npm install -g semver
 
       - name: Check formatting
         run: npm run format:check
@@ -37,39 +44,138 @@ jobs:
         run: npm run lint
 
       - name: Run tests
-        run: npm run test:coverage
+        run: npm run test
 
       - name: Build package
         run: npm run build
 
-      - name: Check package version
+      - name: Check package version is valid semver
         id: check-version
         run: |
           CURRENT_VERSION=$(node -p "require('./package.json').version")
           echo "current_version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
-          
+
           # Check if version is valid semver
-          if ! npm version $CURRENT_VERSION --dry-run > /dev/null 2>&1; then
+          if ! semver "$CURRENT_VERSION" > /dev/null 2>&1; then
             echo "❌ Invalid version format: $CURRENT_VERSION"
             exit 1
           fi
-          
+
           echo "✅ Version $CURRENT_VERSION is valid"
 
       - name: Check for version conflicts
         run: |
           CURRENT_VERSION=$(node -p "require('./package.json').version")
-          
+
           # Get the latest version from main branch
           git fetch origin main
           git checkout origin/main -- package.json
           MAIN_VERSION=$(node -p "require('./package.json').version")
-          
+
           # Compare versions
           if [ "$CURRENT_VERSION" = "$MAIN_VERSION" ]; then
             echo "❌ Version $CURRENT_VERSION already exists in main branch"
             echo "Please bump the version before creating a pull request"
             exit 1
           fi
-          
+
           echo "✅ Version $CURRENT_VERSION is new and valid"
+
+  # Release job for main branch pushes
+  release:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    name: Release and Publish
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm run test
+
+      - name: Build package
+        run: npm run build
+
+      - name: Get package version
+        id: package-version
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Package version: $VERSION"
+
+      - name: Publish to npm
+        id: publish-npm
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ env.NPM_TOKEN }}
+
+      - name: Create GitHub Release
+        id: create-release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ env.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ steps.package-version.outputs.version }}
+          release_name: Release v${{ steps.package-version.outputs.version }}
+          body: |
+            ## Release v${{ steps.package-version.outputs.version }}
+
+            This release includes the latest changes from the development branch.
+
+            ### Changes
+            - Automated release from main branch. Please check the [changelog](https://github.com/digifarmio/core/blob/main/CHANGELOG.md) for more details.
+
+            ### Installation
+            ```bash
+            npm install @digifarmio/core@${{ steps.package-version.outputs.version }}
+            ```
+          draft: false
+          prerelease: false
+
+      # Rollback steps that run on failure
+      - name: Rollback on failure
+        if: failure()
+        run: |
+          echo "❌ Release failed! Starting rollback process..."
+
+          # Get the current version
+          VERSION=$(node -p "require('./package.json').version")
+          echo "Rolling back version: $VERSION"
+
+          # Unpublish from npm if it was published
+          if [ "${{ steps.publish-npm.outcome }}" == "success" ]; then
+            echo "Unpublishing from npm..."
+            npm unpublish @digifarmio/core@$VERSION --force || echo "Failed to unpublish from npm"
+          fi
+
+          # Delete the GitHub release if it was created
+          if [ "${{ steps.create-release.outcome }}" == "success" ]; then
+            echo "Deleting GitHub release..."
+            gh release delete v$VERSION --yes || echo "Failed to delete GitHub release"
+          fi
+
+          # Revert the git push
+          echo "Reverting git push..."
+          git revert HEAD --no-edit || echo "Failed to revert git push"
+          git push origin main --force || echo "Failed to force push revert"
+
+          echo "✅ Rollback completed"
+
+      - name: Notify rollback
+        if: failure()
+        run: |
+          echo "🚨 RELEASE FAILED AND ROLLED BACK"
+          echo "Version: ${{ steps.package-version.outputs.version }}"
+          echo "Please check the logs and fix the issues before trying again."
