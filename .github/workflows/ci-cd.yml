@@ -142,9 +142,10 @@ jobs:
             npm install @digifarmio/core@${{ steps.package-version.outputs.version }}
             ```
           draft: false
-          prerelease: false
+          prerelease:
+            false
 
-      # Rollback steps that run on failure
+            # Rollback steps that run on failure
       - name: Rollback on failure
         if: failure()
         run: |
@@ -154,24 +155,71 @@ jobs:
           VERSION=$(node -p "require('./package.json').version")
           echo "Rolling back version: $VERSION"
 
+          # Track rollback success
+          ROLLBACK_SUCCESS=true
+
           # Unpublish from npm if it was published
           if [ "${{ steps.publish-npm.outcome }}" == "success" ]; then
             echo "Unpublishing from npm..."
-            npm unpublish @digifarmio/core@$VERSION --force || echo "Failed to unpublish from npm"
+            if npm unpublish @digifarmio/core@$VERSION --force; then
+              echo "✅ Successfully unpublished from npm"
+            else
+              echo "❌ Failed to unpublish from npm"
+              ROLLBACK_SUCCESS=false
+            fi
+          else
+            echo "ℹ️ NPM package was not published, skipping unpublish"
           fi
 
           # Delete the GitHub release if it was created
           if [ "${{ steps.create-release.outcome }}" == "success" ]; then
             echo "Deleting GitHub release..."
-            gh release delete v$VERSION --yes || echo "Failed to delete GitHub release"
+            if gh release delete v$VERSION --yes; then
+              echo "✅ Successfully deleted GitHub release"
+            else
+              echo "❌ Failed to delete GitHub release"
+              ROLLBACK_SUCCESS=false
+            fi
+          else
+            echo "ℹ️ GitHub release was not created, skipping deletion"
           fi
 
           # Revert the git push
           echo "Reverting git push..."
-          git revert HEAD --no-edit || echo "Failed to revert git push"
-          git push origin main --force || echo "Failed to force push revert"
 
-          echo "✅ Rollback completed"
+          # Check if this is a merge commit
+          if git show --no-patch --format=%P HEAD | wc -w | grep -q "2"; then
+            echo "Detected merge commit, reverting with -m 1..."
+            if git revert HEAD -m 1 --no-edit; then
+              echo "✅ Successfully reverted merge commit"
+            else
+              echo "❌ Failed to revert merge commit"
+              ROLLBACK_SUCCESS=false
+            fi
+          else
+            echo "Detected regular commit, reverting normally..."
+            if git revert HEAD --no-edit; then
+              echo "✅ Successfully reverted commit"
+            else
+              echo "❌ Failed to revert commit"
+              ROLLBACK_SUCCESS=false
+            fi
+          fi
+
+          # Force push the revert
+          if git push origin main --force; then
+            echo "✅ Successfully force pushed revert"
+          else
+            echo "❌ Failed to force push revert"
+            ROLLBACK_SUCCESS=false
+          fi
+
+          # Final status
+          if [ "$ROLLBACK_SUCCESS" = true ]; then
+            echo "✅ Rollback completed successfully"
+          else
+            echo "⚠️ Rollback completed with some failures - manual intervention may be needed"
+          fi
 
       - name: Notify rollback
         if: failure()
