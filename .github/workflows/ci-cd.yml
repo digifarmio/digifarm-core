@@ -142,10 +142,9 @@ jobs:
             npm install @digifarmio/core@${{ steps.package-version.outputs.version }}
             ```
           draft: false
-          prerelease:
-            false
+          prerelease: false
 
-            # Rollback steps that run on failure
+      # Rollback steps that run on failure
       - name: Rollback on failure
         if: failure()
         run: |
