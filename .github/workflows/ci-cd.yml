@@ -49,11 +49,17 @@ jobs:
       - name: Build package
         run: npm run build
 
+      - name: Get package version
+        id: package-version
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "current_version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Package version: $VERSION"
+
       - name: Check package version is valid semver
         id: check-version
         run: |
-          CURRENT_VERSION=$(node -p "require('./package.json').version")
-          echo "current_version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+          CURRENT_VERSION=${{ steps.package-version.outputs.current_version }}
 
           # Check if version is valid semver
           if ! semver "$CURRENT_VERSION" > /dev/null 2>&1; then
@@ -65,7 +71,7 @@ jobs:
 
       - name: Check for version conflicts
         run: |
-          CURRENT_VERSION=$(node -p "require('./package.json').version")
+          CURRENT_VERSION=${{ steps.package-version.outputs.current_version }}
 
           # Get the latest version from main branch
           git fetch origin main
@@ -80,6 +86,18 @@ jobs:
           fi
 
           echo "✅ Version $CURRENT_VERSION is new and valid"
+
+      - name: Check changelog update
+        run: |
+          CURRENT_VERSION=${{ steps.package-version.outputs.current_version }}
+
+          # Check if changelog contains the current version
+          if ! grep -q "## \[$CURRENT_VERSION\]" CHANGELOG.md; then
+            echo "❌ Changelog does not contain entry for version $CURRENT_VERSION"
+            echo "Please update CHANGELOG.md with the new version entry"
+          else
+            echo "✅ Changelog contains entry for version $CURRENT_VERSION"
+          fi
 
   # Release job for main branch pushes
   release:
@@ -111,15 +129,11 @@ jobs:
           VERSION=$(node -p "require('./package.json').version")
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "Package version: $VERSION"
-
-      - name: Setup npm authentication
-        run: |
-          echo "//registry.npmjs.org/:_authToken=${{ env.NPM_TOKEN }}" > ~/.npmrc
-          echo "registry=https://registry.npmjs.org/" >> ~/.npmrc
-
       - name: Publish to npm
         id: publish-npm
         run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ env.NPM_TOKEN }}
 
       - name: Create GitHub Release
         id: create-release
